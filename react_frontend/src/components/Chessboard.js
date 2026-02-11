@@ -16,6 +16,27 @@ const PIECE_GLYPHS = {
   bk: '♚'
 };
 
+function describePiece(piece) {
+  if (!piece) return '';
+  const color = piece[0] === 'w' ? 'White' : 'Black';
+  const type = piece[1];
+  const name =
+    type === 'p'
+      ? 'pawn'
+      : type === 'n'
+        ? 'knight'
+        : type === 'b'
+          ? 'bishop'
+          : type === 'r'
+            ? 'rook'
+            : type === 'q'
+              ? 'queen'
+              : type === 'k'
+                ? 'king'
+                : 'piece';
+  return `${color} ${name}`;
+}
+
 // PUBLIC_INTERFACE
 export default function Chessboard({
   board,
@@ -65,7 +86,7 @@ export default function Chessboard({
               type="button"
               role="gridcell"
               onClick={() => onSquareClick(square)}
-              aria-label={`Square ${String.fromCharCode(97 + c)}${8 - r}${piece ? `, ${piece}` : ''}`}
+              aria-label={`Square ${String.fromCharCode(97 + c)}${8 - r}${piece ? `, ${describePiece(piece)}` : ''}`}
             >
               <span className="Square__piece" aria-hidden="true">
                 {glyph}

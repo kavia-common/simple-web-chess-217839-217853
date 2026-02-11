@@ -319,6 +319,11 @@ function genPseudoMovesForPiece(state, from) {
 function applyMove(state, move) {
   const { board, turn, castling } = state;
   const color = turn;
+
+  // IMPORTANT: determine captured piece from the pre-move board (before we mutate anything).
+  // This is needed so we correctly update castling rights when a rook is captured.
+  const capturedBeforeMove = board[move.to.r][move.to.c];
+
   const next = {
     board: cloneBoard(board),
     turn: otherColor(turn),
@@ -381,8 +386,19 @@ function applyMove(state, move) {
     if (color === 'b' && move.from.r === 0 && move.from.c === 7) next.castling.bK = false;
   }
 
+  // Castling always consumes castling rights for that side.
+  if (move.kind === 'castle_k' || move.kind === 'castle_q') {
+    if (color === 'w') {
+      next.castling.wK = false;
+      next.castling.wQ = false;
+    } else {
+      next.castling.bK = false;
+      next.castling.bQ = false;
+    }
+  }
+
   // If rook was captured on its home square, update rights too.
-  const captured = board[move.to.r][move.to.c];
+  const captured = capturedBeforeMove;
   if (captured && getPieceType(captured) === 'r') {
     const capColor = getPieceColor(captured);
     if (capColor === 'w' && move.to.r === 7 && move.to.c === 0) next.castling.wQ = false;
