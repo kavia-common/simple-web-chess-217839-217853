@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
 
 function squareLabel(alg, pieceCode) {
@@ -51,7 +51,10 @@ describe('UI interactions: select, move, reset', () => {
     fireEvent.click(screen.getByRole('gridcell', { name: squareLabel('e4') }));
 
     // Turn should now be Black to move
-    expect(screen.getByText(/black to move/i)).toBeInTheDocument();
+    // (Scope to the "Turn" widget so we don't also match the StatusBar text.)
+    const turnWidget = document.querySelector('.Turn');
+    expect(turnWidget).toBeTruthy();
+    expect(within(turnWidget).getByText(/black to move/i)).toBeInTheDocument();
 
     // Moves log should no longer be empty
     expect(screen.queryByText(/no moves yet\./i)).not.toBeInTheDocument();
