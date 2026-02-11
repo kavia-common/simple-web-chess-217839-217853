@@ -1,17 +1,18 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
 
-function squareLabel(alg, pieceCode) {
-  // App's Chessboard aria-label format:
-  // `Square ${file}${rank}${piece ? `, ${piece}` : ''}`
-  return pieceCode ? `Square ${alg}, ${pieceCode}` : `Square ${alg}`;
+function squareLabel(alg, pieceName) {
+  // App's Chessboard aria-label format (see src/components/Chessboard.js):
+  // `Square ${file}${rank}${piece ? `, ${describePiece(piece)}` : ''}`
+  // Example: "Square e2, White pawn"
+  return pieceName ? `Square ${alg}, ${pieceName}` : `Square ${alg}`;
 }
 
 describe('UI interactions: select, move, reset', () => {
   test('selecting a piece highlights legal target squares (pawn from e2 -> e3/e4)', () => {
     render(<App />);
 
-    const e2 = screen.getByRole('gridcell', { name: squareLabel('e2', 'wp') });
+    const e2 = screen.getByRole('gridcell', { name: squareLabel('e2', 'White pawn') });
     fireEvent.click(e2);
 
     // Legal targets should show as dots (aria-hidden), easiest assertion is by CSS class on squares.
@@ -25,7 +26,7 @@ describe('UI interactions: select, move, reset', () => {
   test('clicking the same selected square toggles selection off', () => {
     render(<App />);
 
-    const e2 = screen.getByRole('gridcell', { name: squareLabel('e2', 'wp') });
+    const e2 = screen.getByRole('gridcell', { name: squareLabel('e2', 'White pawn') });
 
     fireEvent.click(e2);
     expect(e2.className).toMatch(/Square--selected/);
@@ -46,7 +47,7 @@ describe('UI interactions: select, move, reset', () => {
     expect(screen.getByText(/white to move/i)).toBeInTheDocument();
 
     // Select pawn e2
-    fireEvent.click(screen.getByRole('gridcell', { name: squareLabel('e2', 'wp') }));
+    fireEvent.click(screen.getByRole('gridcell', { name: squareLabel('e2', 'White pawn') }));
     // Move to e4 (double)
     fireEvent.click(screen.getByRole('gridcell', { name: squareLabel('e4') }));
 
@@ -66,7 +67,7 @@ describe('UI interactions: select, move, reset', () => {
     render(<App />);
 
     // Make a move first
-    fireEvent.click(screen.getByRole('gridcell', { name: squareLabel('e2', 'wp') }));
+    fireEvent.click(screen.getByRole('gridcell', { name: squareLabel('e2', 'White pawn') }));
     fireEvent.click(screen.getByRole('gridcell', { name: squareLabel('e4') }));
     expect(screen.queryByText(/no moves yet\./i)).not.toBeInTheDocument();
 
@@ -78,6 +79,6 @@ describe('UI interactions: select, move, reset', () => {
     expect(screen.getByText(/white to move/i)).toBeInTheDocument();
 
     // Pawn should be back on e2 (with piece in aria-label)
-    expect(screen.getByRole('gridcell', { name: squareLabel('e2', 'wp') })).toBeInTheDocument();
+    expect(screen.getByRole('gridcell', { name: squareLabel('e2', 'White pawn') })).toBeInTheDocument();
   });
 });
